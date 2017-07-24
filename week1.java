@@ -14,7 +14,7 @@ public static void main(String[] args) throws Exception
 
     String tmp = null;
     int endOfNumber = 0;
-    int shiftAmount = 0;
+    int shiftAmount = -1;
     fileReader = new FileReader("sample.csv");
     buffReader = new BufferedReader(fileReader);
 
@@ -31,34 +31,22 @@ public static void main(String[] args) throws Exception
 
       for (int i = 0; i < chars.length; i++)
       {
-        if (chars[i] == ":"))
+        if (chars[i] == ':')
         {
           endOfNumber = i;
           break;
         }
-        if (chars[i].isLetter)
-        {
-          // shift amount is an integer.
-          if (endOfNumber < 1 || )
-          {
-              System.err.println("invalid shift amount for string: \"" + tmp + "\"");
-              System.exit(-1);
-          }
-        }
       }
 
-      // there needs to be at least one character for the shift amount
-      if (endOfNumber < 1 || )
+
+      if ( endOfNumber < 1 && chars[endOfNumber-1] != '-')
       {
           System.err.println("invalid shift amount for string: \"" + tmp + "\"");
           System.exit(-1);
       }
+
       shiftAmount = Integer.parseInt(tmp.substring(0,endOfNumber));
-      if (chars.length > endOfNumber + 1) {
-        for (int i = endOfNumber + 1; i < chars.length; i++)
-        {
-          char a = shiftAmount
-        }
+      System.out.println(shiftAmount);
       }
     }
   } catch (IOException e)
