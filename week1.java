@@ -1,111 +1,128 @@
-
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
 public class week1
 {
-
-  public static void main(String[] args) throws Exception
+  public static String week1(String tmp) throws Exception
   {
-    FileReader fileReader = null;
-    BufferedReader buffReader = null;
-
-    try
-    {
-      StringBuilder sb = new StringBuilder();
-      String tmp = null;
-      int endOfKey = -1;
-      int shiftAmount = -1;
-      fileReader = new FileReader("sample.csv");
-      buffReader = new BufferedReader(fileReader);
-
-      while ((tmp = buffReader.readLine()) != null)
-      {
-        char[] chars = tmp.toCharArray();
-        for (int i = 0; i < chars.length; i++)
+        if (tmp == null)
         {
-          if (Character.isLetter(chars[i]))
-          {
-            System.err.println("\"" + tmp + "\".  Letter found in Key. Key must represent an integer between -1000000 and 1000000.");
-            System.exit(-1);
-          }
-          // Edge Case #1 if a character in a key does not represent a digit,
-          // and the character is not a semicolon or a minus symbol at the beginning of the key.
-          if (!Character.isDigit(chars[i]))
-          {
-            if ((chars[i] == '-' && i != 0) && chars[i] != ':')
-            {
-              System.err.println("\"" + tmp + "\".  Symbol found in Key. Cipher key must represent an integer between -1000000 and 1000000.");
-              System.exit(-1);
-            }
-          }
-          if (chars[i] == ':')
-          {
-            // Edge Case #2 (created by method of parsing) strings beginning with -: are allowed through.
-            if (tmp.substring(0,i) == "-")
-            {
-              System.err.println("\"" + tmp + "\".  Cipher key must represent an integer between -1000000 and 1000000.");
-              System.exit(-1);
-            }
-            endOfKey = i;
-            break;
-          }
+          throw new IOException("null input");
         }
-
-      if (endOfKey < 1)
-      {
-        System.err.println("\"" + tmp + "\".  No missing key. Missing cipher key.");
-        System.exit(-1);
+        char[] chars = tmp.toCharArray();
+        int[] values = getKey(tmp, chars);
+        String retval = shiftString(tmp, chars, values);
+        return (retval);
+  }
+private static int[] getKey (String tmp, char[] chars) throws Exception
+{
+  chars = tmp.toCharArray();
+  int endOfKey = -1;
+  for (int i = 0; i < chars.length; i++)
+  {
+    // Edge Case: no letters allowed in the key.
+    if (Character.isLetter(chars[i]))
+    {
+      throw new IllegalArgumentException("letter in key");
+    }
+    // Edge Case: No spaces allowed in the key.
+    if (chars[i] == ' ') {
+      throw new IllegalArgumentException("space in key");
+    }
+    // Edge Case: if a character in a key does not represent a digit,
+    // and the character is not a semicolon or a minus symbol at the beginning of the key.
+    if (!Character.isDigit(chars[i]))
+    {
+      if ((chars[i] == '-' && i != 0) && chars[i] != ':')
+      {// Edge Case: no symbols allowed in the key..
+        throw new IllegalArgumentException("symbol in key");
       }
-
-
-      shiftAmount = Integer.parseInt(tmp.substring(0,endOfKey));
-      // if cipher key is 0, no need to apply a cipher.
-      if (shiftAmount == 0)
+    }
+    if (chars[i] == ':')
+    {
+      // Edge Case: look ahead to make sure -: is not allowed through.
+      if (tmp.substring(0,i) == "-")
       {
-        System.out.println(chars.toString());
+      throw new IllegalArgumentException("invalid key");
+      }
+      endOfKey = i;
+      break;
+    }
+  }
+
+  if (endOfKey < 1)
+  {
+    // Edge case: no : found, or misformatted key.
+      throw new IllegalArgumentException("missing key");
+  }
+
+  int[] keyVals = new int[2];
+  keyVals[0] = endOfKey;
+  keyVals[1] = Integer.parseInt(tmp.substring(0,endOfKey));
+
+  return keyVals;
+}
+
+private static String shiftString (String tmp, char[] chars, int[] keyVals) throws Exception {
+  StringBuilder sb = new StringBuilder();
+	chars = tmp.toCharArray();
+  // if shift is 0, no need to apply.
+  if (keyVals[1] == 0)
+  {
+    return(chars.toString());
+  }
+  for (int i = keyVals[0]+1; i < chars.length; i++) {
+    int a = chars[i];
+    int cipherNumber;
+
+    if (a >= 48 && a <= 57)
+    {
+      cipherNumber = (a + keyVals[1]%10);
+      if (cipherNumber < 48)
+      {
+        cipherNumber += 10;
+        sb.append((char)cipherNumber);
         continue;
       }
-      for (int i = endOfKey+1; i < chars.length; i++) {
-        if ((int)chars[i] >= 48 && (int)chars[i] <= 57)
-        {
-          int plainNumber = (int)chars[i];
-          int cipherNumber = Math.abs(shiftAmount + plainNumber)%10 + 48;
-          sb.append((char)cipherNumber);
-        }
-        if ((int)chars[i] >= 97 && (int)chars[i] <= 122)
-        {
-          int plainNumber = (int)chars[i];
-          int cipherNumber = Math.abs(shiftAmount + plainNumber)%10 + 97;
-          sb.append((char)cipherNumber);
-        }
-        else sb.append(chars[i]);
-      }
-      System.out.println(sb.toString());
-    }
-  }
-  catch (IOException e)
-  {
-    e.printStackTrace();
-  }
-  finally
-  {
-    try
-    {
-      if (buffReader != null)
+      else
       {
-        buffReader.close();
-      }
-      if (fileReader != null)
-      {
-        fileReader.close();
+        sb.append((char)cipherNumber);
+        continue;
       }
     }
-    catch (IOException ex)
+    if (a >= 65 && a <= 90)
     {
-      ex.printStackTrace();
+      cipherNumber = (a + keyVals[1]%26);
+      if (cipherNumber < 65)
+      {
+        cipherNumber += 26;
+        sb.append((char)cipherNumber);
+        continue;
+      }
+      else
+      {
+        sb.append((char)cipherNumber);
+        continue;
+      }
     }
+    if (a >= 97 && a <= 122)
+    {
+      cipherNumber = (a + keyVals[1]%26);
+      if (cipherNumber < 97)
+      {
+        cipherNumber += 26;
+        sb.append((char)cipherNumber);
+        continue;
+      }
+      else
+      {
+        sb.append((char)cipherNumber);
+        continue;
+      }
+    }
+    else sb.append((char)a);
   }
-}
+  return sb.toString();
+  }
 }
