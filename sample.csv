@@ -1,6 +1,26 @@
 1:some text
-11:some text
-111:some text
--1:some text1
-3: SOME TEXT
-1: Som3 t3Xt  . : .
+1: some text
+1 : some text
+ 1 : some text
+ a: some text
+ @:some text
+ -:some text
+ ::
+ some text
+ 1:
+ 0:some text
+ 0
+ a
+ -10000000000000: some text
+ 10000000000000: some text
+
+1:111111
+1:aaaaaa
+1:$$$$$
+-1:11111
+-1:BBBBB
+-1:$$$$$
+1:ZZZZZ
+1:99999
+-1:00000
+-1:AAAAA
