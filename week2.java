@@ -3,7 +3,12 @@ import java.util.*;
 
 public class week2
 {
-  private static int lengthOfLongestSubstring(String s) throws Exception
+    public static void maain(String[] args)throws Exception {
+        String word = "test1";
+        System.out.println(lengthOfLongestSubstring(word));
+        
+    }
+  private static int lengthOfLongestSubstring(String s)
   {
     if (s == null) throw new IOException("null string");
     if (s.length() <= 1) return s.length();
