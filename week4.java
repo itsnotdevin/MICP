@@ -1,57 +1,40 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
+package solution;
+import java.util.HashMap;
 
 public class week4 {
-    public static boolean findString(String dict, String word) throws IllegalArgumentException
-    {
-        if (dict == null || word == null) throw new IllegalArgumentException("An attempt was made to call findString(String dict, String word) with a null reference to either dict or word arguments.");
+
+    public static boolean findString(String dict, String word) throws IllegalArgumentException {
+        if (dict == null || word == null) throw new IllegalArgumentException("findString(String, String) called with null argument references.");
         if (dict.isEmpty() || word.isEmpty()) return false;
-        String[] parsedDict = dict.split("\\s+");
-        return findString(parsedDict, word);
+        
+        String[] parsedDict = dict.split("\\s+");  
+        return findString(parsedDict, word, new HashMap<String, Integer>(), false);
+        
     }
 
-    private static boolean findString(String[] dict, String word)
-    {
-        if (word.length() == 0) return true;
-        for (int i = 0; i < dict.length; i++)
-        {
-            if (dict[i].length() > word.length()) continue;
-            if (word.substring(0,dict[i].length()).equalsIgnoreCase(dict[i]))
-                return findString(dict, word.substring(dict[i].length(),word.length()));
+    private static boolean findString(String[] dict, String word, HashMap map, boolean flag) {
+        
+        // Base case
+        if ( flag || word.length() == 0) return true;
+           
+        for (Integer i = 0; i < dict.length; i++) {   
+            
+            // making sure to avoid array out of bounds on next line. 
+            if (dict[i].length() <= word.length()) { 
+                
+                // Note: just using 'tmp' to make the rest of the method easier to read.
+                String tmp = word.substring(0,dict[i].length());
+                
+                // We've seen this state before when the map key and value matches the current substring and index.
+                if (i.equals(map.get(tmp))) continue;
+                if (tmp.equalsIgnoreCase(dict[i])) {          
+                    flag = findString(dict, word.substring(dict[i].length(),word.length()), map, flag);
+                    
+                    //save bad state.
+                    map.put(tmp, i);
+                }      
+            }           
         }
-       return false;
+        return flag;
     }
-
-    @Test
-        public void testFindString() {
-            System.out.println("* testFindString JUnit4Test: test method 1 - assertEquals()");
-            //Test cases for true output: all words found w/ extra dictionary input, repeating words found, different ways to pass,
-            // one letter dictionary inputs, repeating dictionary input, one word dictionary and word
-            assertEquals(true, week4.findString("pear salmon you sun girl enjoy", "youenjoy"));
-            assertEquals(true, week4.findString("pear salmon you sun", "youyouyouyou"));
-            assertEquals(true, week4.findString("pear salmon pearsalmon", "pearsalmon"));
-            assertEquals(true, week4.findString("a b c d e f g", "aaaaaaabcdefgaa"));
-            assertEquals(true, week4.findString("ab ab ab ab", "ababababababab"));
-            assertEquals(true, week4.findString("pear", "pear"));
-
-            //Test cases for false output: no words found, false at end, false at beginning,one word dictionary and word
-            //empty dictionary, empty word, empty word and dictionary
-            assertEquals(false, week4.findString("pear twice", "bob"));
-            assertEquals(false, week4.findString("pear bob", "bobsalty"));
-            assertEquals(false, week4.findString("pear bob", "saltybob"));
-            assertEquals(false, week4.findString("pear", "bob"));
-            assertEquals(false, week4.findString("", "saltybob"));
-            assertEquals(false, week4.findString("pear bob", ""));
-            assertEquals(false, week4.findString("", ""));
-
-        }
-        @Test (expected=IllegalArgumentException.class)
-        public void checkArgumentException() {
-            System.out.println("* testFindString JUnit4Test: test method 2 - checkArgumentException()");
-            //Test cases for exception: null dictionary, null word, null dictionary and word,
-            week4.findString(null, "word");
-            week4.findString("dictionary word", null);
-            week4.findString(null, null);
-        }
-
 }
