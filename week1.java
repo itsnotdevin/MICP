@@ -1,128 +1,68 @@
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.IOException;
+package solution;
 
-public class week1
-{
-  public static String week1(String tmp) throws Exception
-  {
-        if (tmp == null)
-        {
-          throw new IOException("null input");
+import java.util.Objects;
+
+public class week1 {
+    public static String cipher(String tmp) throws Exception {
+
+        if (Objects.equals(tmp, null) || tmp.isEmpty()) 
+            throw new Exception("week1(String) must be non empty and initialized");
+
+        String[] word = tmp.split(":");
+        if (word[0].length() == tmp.length()) 
+            throw new Exception("missing : symbol");
+
+        int key = getKey(word[0]);
+        if (key == 0)
+            return word[1];
+
+        return shiftString(word, key);
+    }
+    
+    private static int getKey (String word) throws Exception {
+        word = word.trim();
+        if (word.charAt(0) != '-' && !Character.isDigit(word.charAt(0))) throw new Exception("Special characters in key are not allowed");
+        else {
+            for (int i = 1; i < word.length(); i++) 
+                if (Character.isLetter(word.charAt(i)) || !Character.isDigit(word.charAt(i))) 
+                    throw new Exception("Key must be digits only");
         }
-        char[] chars = tmp.toCharArray();
-        int[] values = getKey(tmp, chars);
-        String retval = shiftString(tmp, chars, values);
-        return (retval);
-  }
-private static int[] getKey (String tmp, char[] chars) throws Exception
-{
-  chars = tmp.toCharArray();
-  int endOfKey = -1;
-  for (int i = 0; i < chars.length; i++)
-  {
-    // Edge Case: no letters allowed in the key.
-    if (Character.isLetter(chars[i]))
-    {
-      throw new IllegalArgumentException("letter in key");
+        return Integer.parseInt(word);
     }
-    // Edge Case: No spaces allowed in the key.
-    if (chars[i] == ' ') {
-      throw new IllegalArgumentException("space in key");
-    }
-    // Edge Case: if a character in a key does not represent a digit,
-    // and the character is not a semicolon or a minus symbol at the beginning of the key.
-    if (!Character.isDigit(chars[i]))
-    {
-      if ((chars[i] == '-' && i != 0) && chars[i] != ':')
-      {// Edge Case: no symbols allowed in the key..
-        throw new IllegalArgumentException("symbol in key");
-      }
-    }
-    if (chars[i] == ':')
-    {
-      // Edge Case: look ahead to make sure -: is not allowed through.
-      if (tmp.substring(0,i) == "-")
-      {
-      throw new IllegalArgumentException("invalid key");
-      }
-      endOfKey = i;
-      break;
-    }
-  }
 
-  if (endOfKey < 1)
-  {
-    // Edge case: no : found, or misformatted key.
-      throw new IllegalArgumentException("missing key");
-  }
-
-  int[] keyVals = new int[2];
-  keyVals[0] = endOfKey;
-  keyVals[1] = Integer.parseInt(tmp.substring(0,endOfKey));
-
-  return keyVals;
-}
-
-private static String shiftString (String tmp, char[] chars, int[] keyVals) throws Exception {
-  StringBuilder sb = new StringBuilder();
-	chars = tmp.toCharArray();
-  // if shift is 0, no need to apply.
-  if (keyVals[1] == 0)
-  {
-    return(chars.toString());
-  }
-  for (int i = keyVals[0]+1; i < chars.length; i++) {
-    int a = chars[i];
-    int cipherNumber;
-
-    if (a >= 48 && a <= 57)
-    {
-      cipherNumber = (a + keyVals[1]%10);
-      if (cipherNumber < 48)
-      {
-        cipherNumber += 10;
-        sb.append((char)cipherNumber);
-        continue;
-      }
-      else
-      {
-        sb.append((char)cipherNumber);
-        continue;
-      }
+    private static String shiftString (String[] message, int key){
+        StringBuilder sb = new StringBuilder();	
+        
+        for (int j = 1; j < message.length; j++) {
+            for (int i = 0; i < message[j].length(); i++) {  
+                
+                int n = (int)message[j].charAt(i);
+                if (Character.isDigit((char)n)) {
+                    if (n + key%10 < 48) sb.append((char)(n + key%10 + 10));
+                    else if (n + key%10 > 57) sb.append((char)(n + key%10 - 10));
+                    else sb.append((char)(n + key%10));
+                    continue;
+                }
+                
+                else if (Character.isLetter((char)n)){
+                    if (Character.isUpperCase((char)n)) {
+                        if (n + key%26 < 65) sb.append((char)(n + key%26 + 26));
+                        else if (n + key%26 > 90) sb.append((char)(n + key%26 - 26));
+                        else sb.append((char)(n + key%26));
+                        continue;
+                    }
+                    
+                    if (Character.isLowerCase((char)n)) {
+                        if (n + key%26 < 97) sb.append((char)(n + key%26 + 26));
+                        else if (n + key%26 > 122) sb.append((char)(n + key%26 - 26));
+                        else sb.append((char)(n + key%26));
+                        continue;
+                    }
+                }
+                
+                else sb.append((char)n);
+            }
+        }
+        return sb.toString();
     }
-    if (a >= 65 && a <= 90)
-    {
-      cipherNumber = (a + keyVals[1]%26);
-      if (cipherNumber < 65)
-      {
-        cipherNumber += 26;
-        sb.append((char)cipherNumber);
-        continue;
-      }
-      else
-      {
-        sb.append((char)cipherNumber);
-        continue;
-      }
-    }
-    if (a >= 97 && a <= 122)
-    {
-      cipherNumber = (a + keyVals[1]%26);
-      if (cipherNumber < 97)
-      {
-        cipherNumber += 26;
-        sb.append((char)cipherNumber);
-        continue;
-      }
-      else
-      {
-        sb.append((char)cipherNumber);
-        continue;
-      }
-    }
-    else sb.append((char)a);
-  }
-  return sb.toString();
-  }
 }
